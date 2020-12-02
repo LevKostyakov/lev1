@@ -14,14 +14,44 @@ def send_message(user_id, message, file_vk_url = None, keyboard = None):
                            'attachment':file_vk_url,
                            'keyboard':keyboard}
                           )
-keyboard = VkKeyboard(one_time=True)
+def get_keyboard_x_y(x,y)
+        keyboard = VkKeyboard(one_time=True)
+    first = True
+    for i in range(y):
+        if not first:
+            keyboard.add_line()  # Переход на вторую строку
+        first = False
+        for j in range(x):
+            keyboard.add_button('y '+str(i)+','+'x '+str(j))
+    return keyboard.get_keyboard()
 
-keyboard.add_button('привет')
-keyboard.add_line()  # Переход на вторую строку
+def generate_keyboard(variants, w=3):
+    n = len(variants)
+    x = w
+    y = n//w
+    if n%w:
+        y+=1
+    n_var = 0
+    keyboard = VkKeyboard(one_time=True)
+    first = True
+    for i in range(y):
+        if not first:
+            keyboard.add_line()  # Переход на вторую строку
+        first = False
+        for j in range(x):
+            if n_var < n:
+                keyboard.add_button(variants[n_var], color=VkKeyboardColor.POSITIVE)
+                n_var += 1
+    return keyboard.get_keyboard()
 
-keyboard.add_button('давай угодаю число')
+main_keyboard = generate_keyboard(['об авторе','игра','тест','пинг'], w=3)
+game_keyboard = generate_keyboard(['камень','ножницы','бумага','назад'], w=1)
+back_keyboard = generate_keyboard(['назад'], w=1)
+ping_keyboard = generate_keyboard(['назад','пинг'], w=1)
 
-    # Работа с сообщениями
+users = {} #       kryakrya
+                                
+        # Работа с сообщениями
 longpoll = VkLongPoll(vk)
 # Основной цикл
 for event in longpoll.listen():
@@ -29,14 +59,20 @@ for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
         # Если оно имеет метку для меня( то есть бота)
         if event.to_me:
-            text = event.text.lower()
             user_id = event.user_id
-            print(repr(text))
-            if text == "привет":
-                send_message(user_id, "Привет",  keyboard = keyboard.get_keyboard())
-            elif text == "как дела":
-                send_message(user_id, "ой мне пора пока")
+            text = event.text.lower()
+            if text == 'об авторе':
+                send_message(user_id, 'Damir',  keyboard = back_keyboard )
+            elif text == 'игра':
+                send_message(user_id, 'GAME',  keyboard = game_keyboard )
+                
+            elif text == 'тест':
+                send_message(user_id, 'тест',  keyboard = back_keyboard )
+            elif text == 'пинг':
+                send_message(user_id, 'понг',  keyboard = ping_keyboard )
             else:
-                send_message(user_id, "ку", keyboard = keyboard.get_keyboard())
+                send_message(user_id, 'Привет',  keyboard = main_keyboard )
             
+            
+
 
