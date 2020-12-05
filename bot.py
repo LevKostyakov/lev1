@@ -1,7 +1,7 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-key = "1e73597d9953a32cb53dfaa97075427b9ebb0db5972dcc92485395e3b508c782efdb44e1091bd8edf06fd"
+key = "f182c62921c4131b033c1c304ae886874ec2957b895b15e5a4260c4d0d9a28d17889ddadf12595e2bd254"
 # Авторизуемся как сообщество
 vk = vk_api.VkApi(token=key)
 
@@ -14,8 +14,8 @@ def send_message(user_id, message, file_vk_url = None, keyboard = None):
                            'attachment':file_vk_url,
                            'keyboard':keyboard}
                           )
-def get_keyboard_x_y(x,y)
-        keyboard = VkKeyboard(one_time=True)
+def get_keyboard_x_y(x,y):
+    keyboard = VkKeyboard(one_time=True)
     first = True
     for i in range(y):
         if not first:
@@ -24,7 +24,6 @@ def get_keyboard_x_y(x,y)
         for j in range(x):
             keyboard.add_button('y '+str(i)+','+'x '+str(j))
     return keyboard.get_keyboard()
-
 def generate_keyboard(variants, w=3):
     n = len(variants)
     x = w
@@ -62,7 +61,7 @@ for event in longpoll.listen():
             user_id = event.user_id
             text = event.text.lower()
             if text == 'об авторе':
-                send_message(user_id, 'Damir',  keyboard = back_keyboard )
+                send_message(user_id, 'Lev',  keyboard = back_keyboard )
             elif text == 'игра':
                 send_message(user_id, 'GAME',  keyboard = game_keyboard )
                 
@@ -73,6 +72,24 @@ for event in longpoll.listen():
             else:
                 send_message(user_id, 'Привет',  keyboard = main_keyboard )
             
-            
-
-
+            if users[user_id]['status'] == 'gaming':
+                if text not in ['камень','ножницы','бумага','назад']:
+                    send_message(user_id, 'its a game,bro. press buttons',  keyboard = game_keyboard )
+                    continue
+                if text == 'назад':
+                    send_message(user_id, 'GG',  keyboard = main_keyboard )
+                    users[user_id] = {'status':'main'}
+                    continue
+                uspeh = randint(1,3)
+                if uspeh == 1:
+                    send_message(user_id, 'proigral')
+                elif uspeh == 2:
+                    send_message(user_id, 'nich\'ya')
+                elif uspeh == 3:
+                    send_message(user_id, 'выиграл')
+                    users[user_id]['wins']  += 1
+                else:
+                    print(uspeh)
+                users[user_id]['round']  +=1
+                send_message(user_id, "побед"+str(users[user_id]['wins'])+'/'+str(users[user_id]['round']),  keyboard = game_keyboard )
+                
