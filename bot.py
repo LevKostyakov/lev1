@@ -1,6 +1,8 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+
+from random import randint
 key = "f182c62921c4131b033c1c304ae886874ec2957b895b15e5a4260c4d0d9a28d17889ddadf12595e2bd254"
 # Авторизуемся как сообщество
 vk = vk_api.VkApi(token=key)
@@ -47,10 +49,9 @@ main_keyboard = generate_keyboard(['об авторе','игра','тест','п
 game_keyboard = generate_keyboard(['камень','ножницы','бумага','назад'], w=1)
 back_keyboard = generate_keyboard(['назад'], w=1)
 ping_keyboard = generate_keyboard(['назад','пинг'], w=1)
+users = {} 
 
-users = {} #       kryakrya
-                                
-        # Работа с сообщениями
+    # Работа с сообщениями
 longpoll = VkLongPoll(vk)
 # Основной цикл
 for event in longpoll.listen():
@@ -60,17 +61,22 @@ for event in longpoll.listen():
         if event.to_me:
             user_id = event.user_id
             text = event.text.lower()
-            if text == 'об авторе':
-                send_message(user_id, 'Lev',  keyboard = back_keyboard )
-            elif text == 'игра':
-                send_message(user_id, 'GAME',  keyboard = game_keyboard )
-                
-            elif text == 'тест':
-                send_message(user_id, 'тест',  keyboard = back_keyboard )
-            elif text == 'пинг':
-                send_message(user_id, 'понг',  keyboard = ping_keyboard )
-            else:
-                send_message(user_id, 'Привет',  keyboard = main_keyboard )
+            if user_id not in users:
+                users[user_id] = {'status':'main'}
+            if users[user_id]['status'] == 'main':
+                if text == 'об авторе':
+                    send_message(user_id, 'Damir',  keyboard = back_keyboard )
+                elif text == 'игра':
+                    send_message(user_id, 'GAME',  keyboard = game_keyboard )
+                    users[user_id]['status'] = 'gaming'
+                    users[user_id]['round'] = 0
+                    users[user_id]['wins'] = 0
+                elif text == 'тест':
+                    send_message(user_id, 'тест',  keyboard = back_keyboard )
+                elif text == 'пинг':
+                    send_message(user_id, 'понг',  keyboard = ping_keyboard )
+                else:
+                    send_message(user_id, 'Привет',  keyboard = main_keyboard )
             
             if users[user_id]['status'] == 'gaming':
                 if text not in ['камень','ножницы','бумага','назад']:
@@ -92,4 +98,5 @@ for event in longpoll.listen():
                     print(uspeh)
                 users[user_id]['round']  +=1
                 send_message(user_id, "побед"+str(users[user_id]['wins'])+'/'+str(users[user_id]['round']),  keyboard = game_keyboard )
-                
+
+
