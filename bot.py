@@ -16,6 +16,7 @@ def send_message(user_id, message, file_vk_url = None, keyboard = None):
                            'attachment':file_vk_url,
                            'keyboard':keyboard}
                           )
+                
 def get_keyboard_x_y(x,y):
     keyboard = VkKeyboard(one_time=True)
     first = True
@@ -76,21 +77,36 @@ for event in longpoll.listen():
                 elif text == 'пинг':
                     send_message(user_id, 'понг',  keyboard = ping_keyboard )
                 else:
-                    send_message(user_id, 'Привет',  keyboard = main_keyboard )
+                    name = vk.method('users.get', {'user_ids': user_id})
+                    name_user = name[0].get('first_name')
+                    send_message(user_id, 'Привет ' + name_user,  keyboard = main_keyboard )
+                    name = vk.method('users.get', {'user_ids': user_id})
+                    name_user = name[0].get('first_name')
             
             if users[user_id]['status'] == 'gaming':
                 if text not in ['камень','ножницы','бумага','назад']:
                     send_message(user_id, 'its a game,bro. press buttons',  keyboard = game_keyboard )
                     continue
+                if text == 'моя инфа':
+                    about_user = vk.method('users.get', {'user_ids': user_id, 'fields': 'sex , bdate , city , contry'})
+                    print(about_user)
+                    name = about_name[0].get('first_name')
+                    bdate = about_bdate[0].get('bdate')
+                    sex = about_firstname[0].get('sex')
+                    city = about_city[0].get('city')
+                    contry = about_contry[0].get('contry').get('city')
+                    massage = 'Имя: () \n Город: \n Страна: \n Пол: \n Дата: \n'.format(name, city, contry, sex, bdate)
+                    send_massage(user_id, message)
+
                 if text == 'назад':
                     send_message(user_id, 'GG',  keyboard = main_keyboard )
                     users[user_id] = {'status':'main'}
                     continue
                 uspeh = randint(1,3)
                 if uspeh == 1:
-                    send_message(user_id, 'proigral')
+                    send_message(user_id, 'проиграл')
                 elif uspeh == 2:
-                    send_message(user_id, 'nich\'ya')
+                    send_message(user_id, 'ничья')
                 elif uspeh == 3:
                     send_message(user_id, 'выиграл')
                     users[user_id]['wins']  += 1
@@ -98,5 +114,6 @@ for event in longpoll.listen():
                     print(uspeh)
                 users[user_id]['round']  +=1
                 send_message(user_id, "побед"+str(users[user_id]['wins'])+'/'+str(users[user_id]['round']),  keyboard = game_keyboard )
+
 
 
