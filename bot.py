@@ -1,20 +1,65 @@
-import vk_api
-from vk_api.longpoll import VkLongPoll, VkEventType
-from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-
-from random import randint
 key = "f182c62921c4131b033c1c304ae886874ec2957b895b15e5a4260c4d0d9a28d17889ddadf12595e2bd254"
 # Авторизуемся как сообщество
 vk = vk_api.VkApi(token=key)
 
-def send_message(user_id, message, file_vk_url = None, keyboard = None):
+
+carousel = {
+    "type": "carousel",
+    "elements": [{
+            "photo_id": "-200304763_457239022",
+            "action": {
+                "type": "open_photo"
+            },
+            "buttons": [{
+                "action": {
+                    "type": "text",
+                    "label": "Текст кнопки 🌚",
+                    "payload": "{}"
+                }
+            }]
+        },
+        {
+            "photo_id": "-200304763_457239026",
+            "action": {
+                "type": "open_photo"
+            },
+            "buttons": [{
+                "action": {
+                    "type": "text",
+                    "label": "Текст кнопки 2",
+                    "payload": "{}"
+                }
+            }]
+        },
+        {
+            "photo_id": "-200304763_457239025",
+            "action": {
+                "type": "open_photo"
+            },
+            "buttons": [{
+                "action": {
+                    "type": "text",
+                    "label": "Текст кнопки 3",
+                    "payload": "{}"
+                }
+            }]
+        }
+    ]
+}
+
+carousel = json.dumps(carousel, ensure_ascii=False).encode('utf-8')
+carousel = str(carousel.decode('utf-8'))
+
+def send_message(user_id, message, file_vk_url = None, keyboard = None, car = None):
                 from random import randint
                 vk.method('messages.send',
                           {'user_id': user_id,
-                           "random_id":randint(1,1000) ,
+                           "random_id":randint(1,1000),
                            'message': message,
                            'attachment':file_vk_url,
-                           'keyboard':keyboard}
+                           'keyboard':keyboard,
+                           'template': car
+                           }
                           )
                 
 def get_keyboard_x_y(x,y):
@@ -66,7 +111,9 @@ for event in longpoll.listen():
                 users[user_id] = {'status':'main'}
             if users[user_id]['status'] == 'main':
                 if text == 'об авторе':
-                    send_message(user_id, 'Damir',  keyboard = back_keyboard )
+                    send_message(user_id, 'Lev',  keyboard = back_keyboard )
+                elif text == 'карусель':
+                    send_message(user_id, 'Thats it', None, None, carousel)
                 elif text == 'игра':
                     send_message(user_id, 'GAME',  keyboard = game_keyboard )
                     users[user_id]['status'] = 'gaming'
@@ -87,17 +134,6 @@ for event in longpoll.listen():
                 if text not in ['камень','ножницы','бумага','назад']:
                     send_message(user_id, 'its a game,bro. press buttons',  keyboard = game_keyboard )
                     continue
-                if text == 'моя инфа':
-                    about_user = vk.method('users.get', {'user_ids': user_id, 'fields': 'sex , bdate , city , contry'})
-                    print(about_user)
-                    name = about_name[0].get('first_name')
-                    bdate = about_bdate[0].get('bdate')
-                    sex = about_firstname[0].get('sex')
-                    city = about_city[0].get('city')
-                    contry = about_contry[0].get('contry').get('city')
-                    massage = 'Имя: () \n Город: \n Страна: \n Пол: \n Дата: \n'.format(name, city, contry, sex, bdate)
-                    send_massage(user_id, message)
-
                 if text == 'назад':
                     send_message(user_id, 'GG',  keyboard = main_keyboard )
                     users[user_id] = {'status':'main'}
@@ -114,6 +150,6 @@ for event in longpoll.listen():
                     print(uspeh)
                 users[user_id]['round']  +=1
                 send_message(user_id, "побед"+str(users[user_id]['wins'])+'/'+str(users[user_id]['round']),  keyboard = game_keyboard )
-
-
-
+                
+                
+                
