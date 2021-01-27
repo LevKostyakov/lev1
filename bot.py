@@ -1,31 +1,61 @@
-key = "f182c62921c4131b033c1c304ae886874ec2957b895b15e5a4260c4d0d9a28d17889ddadf12595e2bd254"
+import vk_api, json, datetime
+from vk_api.longpoll import VkLongPoll, VkEventType
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+
+
+
+key = "6f2046b582212c540c66df24e33c2722eb9953b34255d5a0ac15cedf037a6e01ef7fccd8c15ef57eb6c8e"
 # Авторизуемся как сообщество
 vk = vk_api.VkApi(token=key)
 
-carousel = {
+
+def send_message(user_id, message, file_vk_url=None, keyboard=None, car = None):
+    from random import randint
+    vk.method('messages.send',
+              {'user_id': user_id,
+               "random_id": randint(1, 1000),
+               'message': message,
+               'attachment': file_vk_url,
+               'keyboard': keyboard,
+               'template': car}
+              )
+def send_message_chat(user_id, message, file_vk_url=None, keyboard=None, car = None):
+    from random import randint
+    vk.method('messages.send',
+              {'chat_id': user_id,
+               "random_id": randint(1, 1000),
+               'message': message,
+               'attachment': file_vk_url,
+               'keyboard': keyboard,
+               'template': car}
+              )
+
+
+caroysel = {
     "type": "carousel",
-    "elements": [{
-        "photo_id": "-200304763_457239022",
-        "action": {
-            "type": "open_photo"
-        },
-        "buttons": [{
+    "elements": [
+        {
+            "photo_id": "-200304763_457239022",
             "action": {
-                "type": "text",
-                "label": "Текст кнопки 🌚",
-                "payload": "{}"
-            }
-        },
-            {
+                "type": "open_photo"
+            },
+            "buttons": [{
                 "action": {
-                    "type": "open_link",
-                    "link": "google.com",
-                    "label": "link",
+                    "type": "text",
+                    "label": "Текст кнопки ",
                     "payload": "{}"
                 }
-            }
-        ]
-    },
+            },
+                {
+                    "action": {
+                        "type": "open_link",
+                        "link": 'https://vk.com/schedrov1',
+                        "label": "Текст кнопки ",
+                        "payload": "{}"
+                    }
+                }
+            ]
+        },
         {
             "photo_id": "-200304763_457239026",
             "action": {
@@ -37,7 +67,16 @@ carousel = {
                     "label": "Текст кнопки 2",
                     "payload": "{}"
                 }
-            }]
+            },
+                {
+                    "action": {
+                        "type": "open_link",
+                        "link": 'https://vk.com/footballru',
+                        "label": "Текст кнопки ",
+                        "payload": "{}"
+                    }
+                }
+            ]
         },
         {
             "photo_id": "-200304763_457239025",
@@ -47,41 +86,26 @@ carousel = {
             "buttons": [{
                 "action": {
                     "type": "text",
-                    "label": "Текст кнопки 3",
+                    "label": "куукук ",
                     "payload": "{}"
                 }
-            }]
+            },
+                {
+                    "action": {
+                        "type": "open_link",
+                        "link": 'https://vk.com/public200304212',
+                        "label": "Текст кнопки ",
+                        "payload": "{}"
+                    }
+                }
+            ]
         }
     ]
 }
 
-carousel = json.dumps(carousel, ensure_ascii=False).encode('utf-8')
-carousel = str(carousel.decode('utf-8'))
 
-
-def send_message(user_id, message, file_vk_url=None, keyboard=None, car=None):
-    from random import randint
-    vk.method('messages.send',
-              {'user_id': user_id,
-               "random_id": randint(1, 1000),
-               'message': message,
-               'attachment': file_vk_url,
-               'keyboard': keyboard,
-               'template': car
-               }
-              )
-
-
-def get_keyboard_x_y(x, y):
-    keyboard = VkKeyboard(one_time=True)
-    first = True
-    for i in range(y):
-        if not first:
-            keyboard.add_line()  # Переход на вторую строку
-        first = False
-        for j in range(x):
-            keyboard.add_button('y ' + str(i) + ',' + 'x ' + str(j))
-    return keyboard.get_keyboard()
+caroysel = json.dumps(caroysel, ensure_ascii=False).encode('utf-8')
+caroysel = str(caroysel.decode('utf-8'))
 
 
 def generate_keyboard(variants, w=3):
@@ -104,11 +128,10 @@ def generate_keyboard(variants, w=3):
     return keyboard.get_keyboard()
 
 
-main_keyboard = generate_keyboard(['об авторе', 'игра', 'тест', 'пинг'], w=3)
-game_keyboard = generate_keyboard(['камень', 'ножницы', 'бумага', 'назад'], w=1)
-back_keyboard = generate_keyboard(['назад'], w=1)
-ping_keyboard = generate_keyboard(['назад', 'пинг'], w=1)
-users = {}
+keyboard2 = generate_keyboard(["привет", "как дела", "о себе", "карусель", "время"], w=3)
+
+
+
 
 # Работа с сообщениями
 longpoll = VkLongPoll(vk)
@@ -118,50 +141,42 @@ for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
         # Если оно имеет метку для меня( то есть бота)
         if event.to_me:
-            user_id = event.user_id
             text = event.text.lower()
-            if user_id not in users:
-                users[user_id] = {'status': 'main'}
-            if users[user_id]['status'] == 'main':
-                if text == 'об авторе':
-                    send_message(user_id, 'Lev', keyboard=back_keyboard)
-                elif text == 'карусель':
-                    send_message(user_id, 'Thats it', None, None, carousel)
-                elif text == 'игра':
-                    send_message(user_id, 'GAME', keyboard=game_keyboard)
-                    users[user_id]['status'] = 'gaming'
-                    users[user_id]['round'] = 0
-                    users[user_id]['wins'] = 0
-                elif text == 'тест':
-                    send_message(user_id, 'тест', keyboard=back_keyboard)
-                elif text == 'пинг':
-                    send_message(user_id, 'понг', keyboard=ping_keyboard)
-                else:
-                    name = vk.method('users.get', {'user_ids': user_id})
-                    name_user = name[0].get('first_name')
-                    send_message(user_id, 'Привет ' + name_user, keyboard=main_keyboard)
-                    name = vk.method('users.get', {'user_ids': user_id})
-                    name_user = name[0].get('first_name')
+            if event.from_chat:
+                user_id = event.chat_id
+            else:
+                user_id = event.user_id
+            print(repr(text))
+            if text == "привет":
+                send_message(user_id, "Привет", keyboard=keyboard2)
+            elif text == "карусель":
+                send_message(user_id, "ku", car=caroysel)
+            elif text == "как дела":
+                send_message(user_id, "ой мне пора пока", keyboard=keyboard2)
+            elif text == "о себе":
+                about_user = vk.method('users.get',
+                                       {'user_ids': user_id, 'fields': 'sex, city, country, followers_count'})
+                print(about_user)
+                sex = about_user[0].get('sex')
+                city = about_user[0].get('city').get('title')
+                country = about_user[0].get('country').get('title')
+                followers_count = about_user[0].get('followers_count')
 
-            if users[user_id]['status'] == 'gaming':
-                if text not in ['камень', 'ножницы', 'бумага', 'назад']:
-                    send_message(user_id, 'its a game,bro. press buttons', keyboard=game_keyboard)
-                    continue
-                if text == 'назад':
-                    send_message(user_id, 'GG', keyboard=main_keyboard)
-                    users[user_id] = {'status': 'main'}
-                    continue
-                uspeh = randint(1, 3)
-                if uspeh == 1:
-                    send_message(user_id, 'проиграл')
-                elif uspeh == 2:
-                    send_message(user_id, 'ничья')
-                elif uspeh == 3:
-                    send_message(user_id, 'выиграл')
-                    users[user_id]['wins'] += 1
-                else:
-                    print(uspeh)
-                users[user_id]['round'] += 1
-                send_message(user_id, "побед" + str(users[user_id]['wins']) + '/' + str(users[user_id]['round']),
-                             keyboard=game_keyboard)
+                message = "Пол: {} \nГород: {} \nСтрана: {} \nПодпичсики: {}".format(sex, city, country,
+                                                                                     followers_count)
+                send_message(user_id, message, keyboard=keyboard2)
+
+            elif text == "время":
+                x = str(datetime.datetime.now()).split('.')[0]
+                send_message(user_id, x, keyboard=keyboard2)
+
+
+            else:
+                send_message(user_id, "ку", keyboard=keyboard2)
+
+
+
+
+
+
 
