@@ -49,7 +49,7 @@ caroysel = {
                 {
                     "action": {
                         "type": "open_link",
-                        "link": 'https://vk.com/schedrov1',
+                        "link": 'https://vk.com/id328826952',
                         "label": "Текст кнопки ",
                         "payload": "{}"
                     }
@@ -71,7 +71,7 @@ caroysel = {
                 {
                     "action": {
                         "type": "open_link",
-                        "link": 'https://vk.com/footballru',
+                        "link": 'https://vk.com/id328826952',
                         "label": "Текст кнопки ",
                         "payload": "{}"
                     }
@@ -86,14 +86,14 @@ caroysel = {
             "buttons": [{
                 "action": {
                     "type": "text",
-                    "label": "куукук ",
+                    "label": "Текст кнопки 3 ",
                     "payload": "{}"
                 }
             },
                 {
                     "action": {
                         "type": "open_link",
-                        "link": 'https://vk.com/public200304212',
+                        "link": 'https://vk.com/id328826952',
                         "label": "Текст кнопки ",
                         "payload": "{}"
                     }
@@ -173,6 +173,7 @@ for event in longpoll.listen():
 
             else:
                 send_message(user_id, "ку", keyboard=keyboard2)
+
 
 
 
