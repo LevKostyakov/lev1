@@ -130,7 +130,13 @@ def generate_keyboard(variants, w=3):
 
 keyboard2 = generate_keyboard(["привет", "как дела", "о себе", "карусель", "время"], w=3)
 
+user_data = {}
+upload = vk_api.VkUpload(vk)
 
+
+def upl(filename):
+    photo = upload.photo_messages([filename])[0]
+    return 'photo{}_{}'.format(photo['owner_id'], photo['id'])
 
 
 # Работа с сообщениями
@@ -146,35 +152,70 @@ for event in longpoll.listen():
                 user_id = event.chat_id
             else:
                 user_id = event.user_id
-            print(repr(text))
-            if text == "привет":
-                send_message(user_id, "Привет", keyboard=keyboard2)
-            elif text == "карусель":
-                send_message(user_id, "ku", car=caroysel)
-            elif text == "как дела":
-                send_message(user_id, "ой мне пора пока", keyboard=keyboard2)
-            elif text == "о себе":
-                about_user = vk.method('users.get',
-                                       {'user_ids': user_id, 'fields': 'sex, city, country, followers_count'})
-                print(about_user)
-                sex = about_user[0].get('sex')
-                city = about_user[0].get('city').get('title')
-                country = about_user[0].get('country').get('title')
-                followers_count = about_user[0].get('followers_count')
 
-                message = "Пол: {} \nГород: {} \nСтрана: {} \nПодпичсики: {}".format(sex, city, country,
-                                                                                     followers_count)
-                send_message(user_id, message, keyboard=keyboard2)
-
-            elif text == "время":
-                x = str(datetime.datetime.now()).split('.')[0]
-                send_message(user_id, x, keyboard=keyboard2)
-
-
+            if user_id in user_data:
+                user_data[user_id]["last_message"].append(text)
             else:
-                send_message(user_id, "ку", keyboard=keyboard2)
+                user_data[user_id] = {"last_message": [text, ],
+                                      "room": "main"}
+            print(repr((text)))
+
+            # send_message(user_id,'a',file_vk_url = upl('/home/dugeru/Desktop/unnamed.jpeg'))
+
+            if user_data[user_id]["room"] == "main":
+                if text == "привет":
+                    send_message(user_id, "Привет", keyboard=keyboard2)
+                elif (text == "users") and (user_id == admin_id):
+
+                    data_json = json.dumps(user_data, ensure_ascii=False)
+                    send_message(user_id, data_json)
 
 
+
+
+                elif text == "карусель":
+                    send_message(user_id, "ku", car=caroysel)
+                elif text == "как дела":
+                    send_message(user_id, "ой мне пора пока", keyboard=keyboard2)
+                elif text == "о себе":
+                    about_user = vk.method('users.get',
+                                           {'user_ids': user_id, 'fields': 'sex, city, country, followers_count'})
+                    print(about_user)
+                    sex = about_user[0].get('sex')
+                    city = about_user[0].get('city').get('title')
+                    country = about_user[0].get('country').get('title')
+                    followers_count = about_user[0].get('followers_count')
+
+                    message = "Пол: {} \nГород: {} \nСтрана: {} \nПодпичсики: {}".format(sex, city, country,
+                                                                                         followers_count)
+                    send_message(user_id, message, keyboard=keyboard2)
+
+                elif text == "время":
+                    x = str(datetime.datetime.now()).split('.')[0]
+                    send_message(user_id, x, keyboard=keyboard2)
+                elif text == "города":
+                    user_data[user_id]["room"] = "game_goroda"
+                    user_data[user_id]["game_data"] = ["а", []]
+                    send_message(user_id, "Начинай, тебе на А", keyboard=keyboard2)
+
+
+                else:
+                    send_message(user_id, "ку", keyboard=keyboard2)
+            elif user_data[user_id]["room"] == "game_goroda":
+                last_letter, goroda = user_data[user_id]["game_data"]
+                print((text[0], last_letter), (text not in goroda))
+                if (text[0] == last_letter) and (text not in goroda):
+
+                    goroda.append(text)
+                    from random import choice
+
+                    bukva = choice("йцукенгшщзззхфывапролджячсмитьбю")
+                    user_data[user_id]["game_data"][0] = bukva
+                    send_message(user_id, "хорошо, теперь на " + bukva.upper(), keyboard=keyboard2)
+                elif (text in goroda):
+                    send_message(user_id, "Такой город уже был", keyboard=keyboard2)
+                else:
+                    send_message(user_id, "чо", keyboard=keyboard2)
 
 
 
