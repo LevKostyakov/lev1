@@ -164,7 +164,8 @@ for event in longpoll.listen():
 
             if user_data[user_id]["room"] == "main":
                 if text == "привет":
-                    send_message(user_id, "Привет", keyboard=keyboard2)
+                    send_message(user_id, "Привет", keyboard=keyboard2, file_vk_url = upl('memes.webp'))
+                                 
                 elif (text == "users") and (user_id == admin_id):
 
                     data_json = json.dumps(user_data, ensure_ascii=False)
@@ -174,9 +175,9 @@ for event in longpoll.listen():
 
 
                 elif text == "карусель":
-                    send_message(user_id, "ku", car=caroysel)
+                    send_message(user_id, "ky", car=caroysel)
                 elif text == "как дела":
-                    send_message(user_id, "ой мне пора пока", keyboard=keyboard2)
+                    send_message(user_id, "пора", keyboard=keyboard2)
                 elif text == "о себе":
                     about_user = vk.method('users.get',
                                            {'user_ids': user_id, 'fields': 'sex, city, country, followers_count'})
@@ -216,9 +217,6 @@ for event in longpoll.listen():
                     send_message(user_id, "Такой город уже был", keyboard=keyboard2)
                 else:
                     send_message(user_id, "чо", keyboard=keyboard2)
-
-
-
 
 
 
